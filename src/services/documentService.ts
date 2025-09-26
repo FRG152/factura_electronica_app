@@ -1,35 +1,13 @@
-import { Documento, Factura, Cliente, Producto } from '../types';
+import {
+  Documento,
+  Factura,
+  Cliente,
+  Producto,
+  ListarDocumentosParams,
+  ListarDocumentosResponse,
+} from '../types';
 
-// Simulación de datos - en una app real esto vendría de una API
-const documentosMock: Documento[] = [
-  {
-    id: '1',
-    tipo: 'Factura',
-    numero: '001-001-0000001',
-    fecha: '2024-01-15',
-    cliente: 'Cliente Ejemplo 1',
-    total: 150000,
-    estado: 'emitida',
-  },
-  {
-    id: '2',
-    tipo: 'Nota de Crédito',
-    numero: '001-001-0000002',
-    fecha: '2024-01-16',
-    cliente: 'Cliente Ejemplo 2',
-    total: 25000,
-    estado: 'borrador',
-  },
-  {
-    id: '3',
-    tipo: 'Factura',
-    numero: '001-001-0000003',
-    fecha: '2024-01-17',
-    cliente: 'Cliente Ejemplo 3',
-    total: 75000,
-    estado: 'emitida',
-  },
-];
+const API_BASE_URL = 'http://e4o84c48gwg0ckcs04ws80cs.154.53.52.208.sslip.io';
 
 const clientesMock: Cliente[] = [
   {
@@ -84,66 +62,32 @@ const productosMock: Producto[] = [
 ];
 
 export const documentService = {
-  // Obtener todos los documentos
-  getDocumentos: async (): Promise<Documento[]> => {
-    // Simular delay de API
-    await new Promise<void>(resolve => setTimeout(resolve, 500));
-    return documentosMock;
+  getDocumentos: async (
+    params: ListarDocumentosParams = {},
+  ): Promise<ListarDocumentosResponse> => {
+    return await getListaDocumentos(params);
   },
-
-  // Obtener documento por ID
-  getDocumentoById: async (id: string): Promise<Documento | null> => {
-    await new Promise<void>(resolve => setTimeout(resolve, 300));
-    return documentosMock.find(doc => doc.id === id) || null;
-  },
-
-  // Crear nuevo documento
-  createDocumento: async (
-    documento: Omit<Documento, 'id'>,
-  ): Promise<Documento> => {
-    await new Promise<void>(resolve => setTimeout(resolve, 800));
-    const newDocumento: Documento = {
-      ...documento,
-      id: Date.now().toString(),
-    };
-    documentosMock.push(newDocumento);
-    return newDocumento;
-  },
-
-  // Actualizar documento
-  updateDocumento: async (
-    id: string,
-    updates: Partial<Documento>,
-  ): Promise<Documento | null> => {
-    await new Promise<void>(resolve => setTimeout(resolve, 600));
-    const index = documentosMock.findIndex(doc => doc.id === id);
-    if (index !== -1) {
-      documentosMock[index] = { ...documentosMock[index], ...updates };
-      return documentosMock[index];
-    }
-    return null;
-  },
-
-  // Eliminar documento
-  deleteDocumento: async (id: string): Promise<boolean> => {
-    await new Promise<void>(resolve => setTimeout(resolve, 400));
-    const index = documentosMock.findIndex(doc => doc.id === id);
-    if (index !== -1) {
-      documentosMock.splice(index, 1);
-      return true;
-    }
-    return false;
+  getDocumentosConFiltros: async (
+    filtros: {
+      estado?: string;
+      numeroDocumento?: string;
+      cdc?: string;
+      page?: number;
+      limit?: number;
+      sortBy?: string;
+      sortOrder?: 'asc' | 'desc';
+    } = {},
+  ): Promise<ListarDocumentosResponse> => {
+    return await getListaDocumentos(filtros);
   },
 };
 
 export const clientService = {
-  // Obtener todos los clientes
   getClientes: async (): Promise<Cliente[]> => {
     await new Promise<void>(resolve => setTimeout(resolve, 500));
     return clientesMock;
   },
 
-  // Buscar clientes
   searchClientes: async (query: string): Promise<Cliente[]> => {
     await new Promise<void>(resolve => setTimeout(resolve, 300));
     const lowercaseQuery = query.toLowerCase();
@@ -155,13 +99,11 @@ export const clientService = {
     );
   },
 
-  // Obtener cliente por ID
   getClienteById: async (id: string): Promise<Cliente | null> => {
     await new Promise<void>(resolve => setTimeout(resolve, 300));
     return clientesMock.find(cliente => cliente.id === id) || null;
   },
 
-  // Crear nuevo cliente
   createCliente: async (cliente: Omit<Cliente, 'id'>): Promise<Cliente> => {
     await new Promise<void>(resolve => setTimeout(resolve, 800));
     const newCliente: Cliente = {
@@ -174,7 +116,6 @@ export const clientService = {
 };
 
 export const productService = {
-  // Obtener todos los productos
   getProductos: async (): Promise<Producto[]> => {
     await new Promise<void>(resolve => setTimeout(resolve, 500));
     return productosMock;
@@ -192,13 +133,11 @@ export const productService = {
     );
   },
 
-  // Obtener producto por ID
   getProductoById: async (id: string): Promise<Producto | null> => {
     await new Promise<void>(resolve => setTimeout(resolve, 300));
     return productosMock.find(producto => producto.id === id) || null;
   },
 
-  // Crear nuevo producto
   createProducto: async (producto: Omit<Producto, 'id'>): Promise<Producto> => {
     await new Promise<void>(resolve => setTimeout(resolve, 800));
     const newProducto: Producto = {
@@ -211,46 +150,55 @@ export const productService = {
 };
 
 export const invoiceService = {
-  // Emitir factura
   emitirFactura: async (
     factura: Omit<Factura, 'id' | 'numero'>,
   ): Promise<Factura> => {
-    await new Promise<void>(resolve => setTimeout(resolve, 1500));
-
-    // Generar número de factura (en una app real esto vendría del backend)
-    const numero = `001-001-${String(Date.now()).slice(-7)}`;
-
-    const newFactura: Factura = {
-      ...factura,
-      id: Date.now().toString(),
-      numero,
-      estado: 'emitida',
-    };
-
-    // Agregar a la lista de documentos
-    const documento: Documento = {
-      id: newFactura.id,
-      tipo: 'Factura',
-      numero: newFactura.numero,
-      fecha: newFactura.fecha,
-      cliente: newFactura.cliente.nombre,
-      total: newFactura.totalVenta,
-      estado: newFactura.estado,
-    };
-
-    documentosMock.unshift(documento);
-
-    return newFactura;
+    throw new Error('Función no implementada - usar API real');
   },
 
-  // Anular factura
   anularFactura: async (id: string): Promise<boolean> => {
-    await new Promise<void>(resolve => setTimeout(resolve, 800));
-    const index = documentosMock.findIndex(doc => doc.id === id);
-    if (index !== -1) {
-      documentosMock[index].estado = 'anulada';
-      return true;
-    }
-    return false;
+    throw new Error('Función no implementada - usar API real');
   },
+};
+export const getListaDocumentos = async (
+  params: ListarDocumentosParams = {},
+): Promise<ListarDocumentosResponse> => {
+  try {
+    const token = null;
+
+    const queryParams = new URLSearchParams();
+    if (params.estado) queryParams.append('estado', params.estado);
+    if (params.numeroDocumento)
+      queryParams.append('numeroDocumento', params.numeroDocumento);
+    if (params.cdc) queryParams.append('cdc', params.cdc);
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.sortBy) queryParams.append('sortBy', params.sortBy);
+    if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+
+    const url = `${API_BASE_URL}/generar-documento/listar?${queryParams.toString()}`;
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Error al listar documentos');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error al listar documentos:', error);
+    throw error;
+  }
 };

@@ -37,10 +37,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     setCargando(true);
 
     try {
-      // Simular llamada a API
       await new Promise<void>(resolve => setTimeout(resolve, 1500));
 
-      // Aquí iría la lógica real de autenticación
       if (usuario === 'admin' && contraseña === '123456') {
         Alert.alert('Éxito', 'Inicio de sesión exitoso', [
           {

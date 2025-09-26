@@ -74,3 +74,67 @@ export interface Documento {
 
 export type Screen = 'Home' | 'Generate' | 'Profile';
 export type AuthState = 'Login' | 'Authenticated';
+
+// API Types for document listing
+export interface ListarDocumentosParams {
+  estado?: string;
+  numeroDocumento?: string;
+  cdc?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface RespuestaSet {
+  id: number;
+  'ns2:rEnviConsDeResponse': {
+    $: {
+      'xmlns:ns2': string;
+    };
+    'ns2:dCodRes': string;
+    'ns2:dMsgRes': string;
+    'ns2:dFecProc': string;
+    'ns2:xContenDE': string;
+  };
+}
+
+export interface Lote {
+  id: number;
+  numeroLote: string;
+  cantidadDocumentos: number;
+  estado: string;
+  respuestaSet?: RespuestaSet;
+  observaciones?: string;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+}
+
+export interface DocumentoAPI {
+  id: number;
+  numeroDocumento: string;
+  xmlOriginal: string;
+  xmlFirmado: string;
+  xmlConQR: string;
+  cdc: string;
+  loteId: number;
+  estado: string;
+  respuestaSet?: RespuestaSet;
+  nombreArchivo: string;
+  rutaArchivo: string;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+  lote: Lote;
+}
+
+export interface ListarDocumentosResponse {
+  documentos: DocumentoAPI[];
+  paginacion: {
+    page: string;
+    limit: string;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+}

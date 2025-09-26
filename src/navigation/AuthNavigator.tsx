@@ -6,15 +6,11 @@ import SimpleNavigator from './SimpleNavigator';
 import { AuthState } from '../types';
 
 const AuthNavigator: React.FC = () => {
-  const [authState, setAuthState] = useState<AuthState>('Login');
+  const [authState, setAuthState] = useState<AuthState>('Authenticated');
 
-  const handleLoginSuccess = () => {
-    setAuthState('Authenticated');
-  };
+  const handleLoginSuccess = () => setAuthState('Authenticated');
 
-  const handleLogout = () => {
-    setAuthState('Login');
-  };
+  const handleLogout = () => setAuthState('Login');
 
   return (
     <View style={styles.container}>

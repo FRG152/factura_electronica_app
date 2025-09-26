@@ -47,11 +47,11 @@ const Button: React.FC<ButtonProps> = ({
     } else if (variant === 'danger') {
       buttonStyle = { ...buttonStyle, ...styles.danger };
     }
-    
+
     if (disabled) {
       buttonStyle = { ...buttonStyle, ...styles.disabled };
     }
-    
+
     return buttonStyle;
   };
 
@@ -60,7 +60,7 @@ const Button: React.FC<ButtonProps> = ({
       ...styles.text,
       ...styles[`${size}Text`],
     };
-    
+
     if (variant === 'primary') {
       textStyleObj = { ...textStyleObj, ...styles.primaryText };
     } else if (variant === 'secondary') {
@@ -70,11 +70,11 @@ const Button: React.FC<ButtonProps> = ({
     } else if (variant === 'danger') {
       textStyleObj = { ...textStyleObj, ...styles.dangerText };
     }
-    
+
     if (disabled) {
       textStyleObj = { ...textStyleObj, ...styles.disabledText };
     }
-    
+
     return textStyleObj;
   };
 
