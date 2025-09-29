@@ -6,7 +6,7 @@ import SimpleNavigator from './SimpleNavigator';
 import { AuthState } from '../types';
 
 const AuthNavigator: React.FC = () => {
-  const [authState, setAuthState] = useState<AuthState>('Authenticated');
+  const [authState, setAuthState] = useState<AuthState>('Login');
 
   const handleLoginSuccess = () => setAuthState('Authenticated');
 
