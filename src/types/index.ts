@@ -61,17 +61,6 @@ export interface Empresa {
   logo?: string;
 }
 
-export interface Documento {
-  id: string;
-  tipo: string;
-  numero: string;
-  fecha: string;
-  cliente: string;
-  total: number;
-  estado: string;
-  archivo?: string;
-}
-
 export type Screen = 'Home' | 'Generate' | 'Profile';
 export type AuthState = 'Login' | 'Authenticated';
 

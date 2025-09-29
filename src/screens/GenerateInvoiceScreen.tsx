@@ -9,10 +9,15 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { Colors } from '../constants';
 import React, { useState } from 'react';
-import { Plus, Search, Trash2, FileText } from 'lucide-react-native';
 import { Cliente, Producto, ItemFactura } from '../types';
+import { Plus, Search, Trash2, FileText } from 'lucide-react-native';
+import {
+  clientesEjemplo,
+  Colors,
+  productosEjemplo,
+  PAYMENT_CONDITIONS,
+} from '../constants';
 
 const GenerateInvoiceScreen: React.FC = () => {
   const [cliente, setCliente] = useState<Cliente | null>(null);
@@ -20,53 +25,10 @@ const GenerateInvoiceScreen: React.FC = () => {
   const [items, setItems] = useState<ItemFactura[]>([]);
   const [mostrarBuscarCliente, setMostrarBuscarCliente] = useState(false);
   const [mostrarBuscarProducto, setMostrarBuscarProducto] = useState(false);
+  const [mostrarSelectCondicionPago, setMostrarSelectCondicionPago] =
+    useState(false);
   const [busquedaCliente, setBusquedaCliente] = useState('');
   const [busquedaProducto, setBusquedaProducto] = useState('');
-
-  const clientesEjemplo: Cliente[] = [
-    {
-      id: '1',
-      nombre: 'Cliente Ejemplo 1',
-      ruc: '12345678-9',
-      direccion: 'Av. Principal 123',
-    },
-    {
-      id: '2',
-      nombre: 'Cliente Ejemplo 2',
-      ruc: '87654321-0',
-      direccion: 'Calle Secundaria 456',
-    },
-  ];
-
-  const productosEjemplo: Producto[] = [
-    {
-      id: '1',
-      codigo: 'PROD001',
-      descripcion: 'Producto de Ejemplo 1',
-      unidad: 'UNI',
-      cantidad: 1,
-      precio: 10000,
-      iva: 'iva10',
-    },
-    {
-      id: '2',
-      codigo: 'PROD002',
-      descripcion: 'Producto de Ejemplo 2',
-      unidad: 'KG',
-      cantidad: 1,
-      precio: 5000,
-      iva: 'iva5',
-    },
-    {
-      id: '3',
-      codigo: 'SERV001',
-      descripcion: 'Servicio de Consultoría',
-      unidad: 'UNI',
-      cantidad: 1,
-      precio: 50000,
-      iva: 'exentas',
-    },
-  ];
 
   const agregarItem = (producto: Producto) => {
     const nuevoItem: ItemFactura = {
@@ -187,10 +149,13 @@ const GenerateInvoiceScreen: React.FC = () => {
 
           <View style={styles.paymentField}>
             <Text style={styles.label}>Condición de pago</Text>
-            <View style={styles.dropdown}>
+            <TouchableOpacity
+              style={styles.dropdown}
+              onPress={() => setMostrarSelectCondicionPago(true)}
+            >
               <Text style={styles.dropdownText}>{condicionPago}</Text>
               <Text style={styles.dropdownArrow}>▼</Text>
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -545,6 +510,59 @@ const GenerateInvoiceScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
+
+      {/* Modal Seleccionar Condición de Pago */}
+      <Modal
+        visible={mostrarSelectCondicionPago}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setMostrarSelectCondicionPago(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                Seleccionar Condición de Pago
+              </Text>
+              <TouchableOpacity
+                onPress={() => setMostrarSelectCondicionPago(false)}
+              >
+                <Text style={styles.closeButton}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <FlatList
+              data={PAYMENT_CONDITIONS}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.paymentOption,
+                    condicionPago === item && styles.paymentOptionSelected,
+                  ]}
+                  onPress={() => {
+                    setCondicionPago(item);
+                    setMostrarSelectCondicionPago(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.paymentOptionText,
+                      condicionPago === item &&
+                        styles.paymentOptionTextSelected,
+                    ]}
+                  >
+                    {item}
+                  </Text>
+                  {condicionPago === item && (
+                    <Text style={styles.checkmark}>✓</Text>
+                  )}
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -555,14 +573,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   header: {
-    backgroundColor: Colors.primary,
     padding: 20,
-    paddingTop: 40,
+    backgroundColor: Colors.white,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: Colors.white,
+    color: Colors.black,
   },
   section: {
     padding: 20,
@@ -1022,6 +1039,35 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  paymentOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.background,
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  paymentOptionSelected: {
+    backgroundColor: Colors.primary + '10',
+    borderColor: Colors.primary,
+  },
+  paymentOptionText: {
+    fontSize: 16,
+    color: Colors.text,
+    flex: 1,
+  },
+  paymentOptionTextSelected: {
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  checkmark: {
+    fontSize: 18,
+    color: Colors.primary,
+    fontWeight: 'bold',
   },
 });
 

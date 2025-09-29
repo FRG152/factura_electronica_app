@@ -1,35 +1,26 @@
-import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
   FlatList,
-  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
 } from 'react-native';
 import { Colors } from '../constants';
-import { Plus, Search } from 'lucide-react-native';
-import ExpandableDocumentCard from '../components/ExpandableDocumentCard';
 import DocumentFilter from '../components/DocumentFilter';
-import {
-  Documento,
-  Screen,
-  ListarDocumentosParams,
-  DocumentoAPI,
-} from '../types';
+import { Plus, Search } from 'lucide-react-native';
+import React, { useState } from 'react';
 import { documentService } from '../services/documentService';
+import ExpandableDocumentCard from '../components/ExpandableDocumentCard';
+import { Screen, DocumentoAPI, ListarDocumentosParams } from '../types';
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen) => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
-  const [refreshing, setRefreshing] = useState(false);
-  const [documentos, setDocumentos] = useState<(Documento | DocumentoAPI)[]>(
-    [],
-  );
-  const [loading, setLoading] = useState(true); // Start with loading true
+  const [loading, setLoading] = useState(true);
+  const [documentos, setDocumentos] = useState<DocumentoAPI[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [filters, setFilters] = useState<ListarDocumentosParams>({
     page: 1,
@@ -37,13 +28,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
     sortBy: 'fechaCreacion',
     sortOrder: 'desc',
   });
-
-  const stats = {
-    facturasEmitidas: 24,
-    totalFacturado: 1250000,
-    clientesActivos: 8,
-    pendientes: 3,
-  };
 
   const loadDocuments = async (newFilters: ListarDocumentosParams = {}) => {
     try {
@@ -58,11 +42,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
               sortOrder: 'desc' as const,
             };
 
-      console.log('Loading documents with filters:', filtersToUse);
       const response = await documentService.getDocumentos(filtersToUse);
-      console.log('API Response:', response);
 
-      // Check if response has the expected structure
       if (response && response.documentos) {
         setDocumentos(response.documentos);
       } else {
@@ -76,12 +57,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
       setLoading(false);
       setInitialLoading(false);
     }
-  };
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadDocuments(filters);
-    setRefreshing(false);
   };
 
   const handleApplyFilter = (newFilters: ListarDocumentosParams) => {
@@ -106,32 +81,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
     initializeData();
   }, []);
 
-  const handleViewDocument = (documento: Documento | DocumentoAPI) => {
-    console.log('Ver documento:', documento);
-  };
-
-  const handleDownloadDocument = (documento: Documento | DocumentoAPI) => {
-    console.log('Descargar documento:', documento);
-  };
-
-  const renderDocumentItem = ({ item }: { item: Documento | DocumentoAPI }) => (
-    <ExpandableDocumentCard
-      documento={item}
-      onView={handleViewDocument}
-      onDownload={handleDownloadDocument}
-    />
+  const renderDocumentItem = ({ item }: { item: DocumentoAPI }) => (
+    <ExpandableDocumentCard documento={item} />
   );
-
-  // Add error boundary for rendering
-  if (initialLoading) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Cargando...</Text>
-        </View>
-      </View>
-    );
-  }
 
   return (
     <ScrollView style={styles.container}>
@@ -140,9 +92,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
           <Text style={styles.greeting}>¡Hola!</Text>
           <Text style={styles.userName}>Juan Pérez</Text>
         </View>
-        <TouchableOpacity style={styles.searchButton}>
-          <Search size={24} color={Colors.primary} />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
@@ -162,7 +111,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
         </View>
       </View>
 
-      {/* Recent Documents */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Documentos Recientes</Text>
@@ -187,18 +135,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>No hay documentos disponibles</Text>
             <Text style={styles.emptySubtext}>
-              Los documentos aparecerán aquí cuando estén disponibles
+              No se encontraron documentos en la API. Verifica tu conexión o
+              intenta más tarde.
             </Text>
           </View>
         ) : (
-          // <FlatList
-          //   data={documentos}
-          //   renderItem={renderDocumentItem}
-          //   keyExtractor={item => String(item.id)}
-          //   scrollEnabled={false}
-          //   showsVerticalScrollIndicator={false}
-          // />
-          <></>
+          <FlatList
+            data={documentos}
+            renderItem={renderDocumentItem}
+            keyExtractor={item => String(item.id)}
+            scrollEnabled={false}
+            showsVerticalScrollIndicator={false}
+          />
         )}
       </View>
     </ScrollView>
@@ -215,7 +163,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    paddingTop: 40,
     backgroundColor: Colors.white,
   },
   greeting: {

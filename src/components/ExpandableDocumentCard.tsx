@@ -1,46 +1,19 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Animated,
-} from 'react-native';
-import {
-  ChevronDown,
-  ChevronUp,
-  FileText,
-  Download,
-  Eye,
-} from 'lucide-react-native';
 import { Colors } from '../constants/colors';
-import { Documento, DocumentoAPI } from '../types';
+import { DocumentoAPI } from '../types';
+import React, { useState } from 'react';
+import { FileText, ChevronUp, ChevronDown } from 'lucide-react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 interface ExpandableDocumentCardProps {
-  documento: Documento | DocumentoAPI;
-  onView?: (documento: Documento | DocumentoAPI) => void;
-  onDownload?: (documento: Documento | DocumentoAPI) => void;
+  documento: DocumentoAPI;
 }
 
 const ExpandableDocumentCard: React.FC<ExpandableDocumentCardProps> = ({
   documento,
-  onView,
-  onDownload,
 }) => {
   const [expanded, setExpanded] = useState(false);
-  const [animation] = useState(new Animated.Value(0));
 
-  const toggleExpanded = () => {
-    const toValue = expanded ? 0 : 1;
-
-    Animated.timing(animation, {
-      toValue,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-
-    setExpanded(!expanded);
-  };
+  const toggleExpanded = () => setExpanded(!expanded);
 
   const getEstadoColor = (estado: string) => {
     switch (estado.toLowerCase()) {
@@ -68,14 +41,6 @@ const ExpandableDocumentCard: React.FC<ExpandableDocumentCardProps> = ({
     }
   };
 
-  // Check if it's API document or mock document
-  const isApiDocument = 'cdc' in documento;
-
-  const heightInterpolate = animation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, isApiDocument ? 200 : 120],
-  });
-
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -89,20 +54,10 @@ const ExpandableDocumentCard: React.FC<ExpandableDocumentCardProps> = ({
           </View>
           <View style={styles.headerInfo}>
             <Text style={styles.documentNumber}>
-              {isApiDocument
-                ? (documento as DocumentoAPI).numeroDocumento
-                : (documento as Documento).numero}
+              {documento.numeroDocumento}
             </Text>
-            <Text style={styles.documentType}>
-              {isApiDocument
-                ? 'Factura Electrónica'
-                : (documento as Documento).tipo}
-            </Text>
-            {isApiDocument && (
-              <Text style={styles.cdcText}>
-                CDC: {(documento as DocumentoAPI).cdc}
-              </Text>
-            )}
+            <Text style={styles.documentType}>Factura Electrónica</Text>
+            <Text style={styles.cdcText}>CDC: {documento.cdc}</Text>
           </View>
         </View>
 
@@ -130,124 +85,36 @@ const ExpandableDocumentCard: React.FC<ExpandableDocumentCardProps> = ({
         </View>
       </TouchableOpacity>
 
-      <Animated.View
-        style={[styles.expandedContent, { height: heightInterpolate }]}
-      >
-        <View style={styles.content}>
-          {isApiDocument ? (
-            <>
-              {/* API Document Details */}
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Estado:</Text>
-                <Text style={styles.detailValue}>
-                  {(documento as DocumentoAPI).estado}
-                </Text>
-              </View>
+      {expanded && (
+        <View style={styles.expandedContent}>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Estado:</Text>
+            <Text style={styles.detailValue}>{documento.estado}</Text>
+          </View>
 
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Fecha Creación:</Text>
-                <Text style={styles.detailValue}>
-                  {new Date(
-                    (documento as DocumentoAPI).fechaCreacion,
-                  ).toLocaleDateString('es-PY')}
-                </Text>
-              </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Fecha Creación:</Text>
+            <Text style={styles.detailValue}>
+              {new Date(documento.fechaCreacion).toLocaleDateString('es-PY')}
+            </Text>
+          </View>
 
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Lote:</Text>
-                <Text style={styles.detailValue}>
-                  {(documento as DocumentoAPI).lote.numeroLote}
-                </Text>
-              </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Lote:</Text>
+            <Text style={styles.detailValue}>{documento.lote.numeroLote}</Text>
+          </View>
 
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Estado Lote:</Text>
-                <Text style={styles.detailValue}>
-                  {(documento as DocumentoAPI).lote.estado}
-                </Text>
-              </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Estado Lote:</Text>
+            <Text style={styles.detailValue}>{documento.lote.estado}</Text>
+          </View>
 
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Archivo:</Text>
-                <Text style={styles.detailValue}>
-                  {(documento as DocumentoAPI).nombreArchivo}
-                </Text>
-              </View>
-
-              {(documento as DocumentoAPI).respuestaSet && (
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Respuesta SET:</Text>
-                  <Text style={styles.detailValue}>
-                    {
-                      (documento as DocumentoAPI).respuestaSet![
-                        'ns2:rEnviConsDeResponse'
-                      ]['ns2:dMsgRes']
-                    }
-                  </Text>
-                </View>
-              )}
-            </>
-          ) : (
-            <>
-              {/* Mock Document Details */}
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Cliente:</Text>
-                <Text style={styles.detailValue}>
-                  {(documento as Documento).cliente}
-                </Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Fecha:</Text>
-                <Text style={styles.detailValue}>
-                  {(documento as Documento).fecha}
-                </Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Total:</Text>
-                <Text style={styles.detailValue}>
-                  {(documento as Documento).total.toLocaleString('es-PY', {
-                    style: 'currency',
-                    currency: 'PYG',
-                  })}
-                </Text>
-              </View>
-            </>
-          )}
-
-          <View style={styles.actions}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => onView?.(documento)}
-            >
-              <Eye size={16} color={Colors.primary} />
-              <Text style={styles.actionText}>Ver</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => onDownload?.(documento)}
-            >
-              <Download size={16} color={Colors.secondary} />
-              <Text style={styles.actionText}>Descargar</Text>
-            </TouchableOpacity>
-
-            {isApiDocument && (
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => {
-                  // TODO: Implement XML viewer
-                  console.log('Ver XML:', (documento as DocumentoAPI).xmlConQR);
-                }}
-              >
-                <FileText size={16} color={Colors.warning} />
-                <Text style={styles.actionText}>XML</Text>
-              </TouchableOpacity>
-            )}
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Archivo:</Text>
+            <Text style={styles.detailValue}>{documento.nombreArchivo}</Text>
           </View>
         </View>
-      </Animated.View>
+      )}
     </View>
   );
 };
@@ -316,9 +183,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   expandedContent: {
-    overflow: 'hidden',
-  },
-  content: {
     paddingHorizontal: 16,
     paddingBottom: 16,
   },
@@ -336,28 +200,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.text,
     fontWeight: '600',
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 16,
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: Colors.background,
-  },
-  actionText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: Colors.text,
   },
 });
 

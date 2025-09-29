@@ -9,21 +9,13 @@ import {
 } from 'react-native';
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
-import { Colors, menuItems } from '../constants';
+import { Colors, menuItems, userExample } from '../constants';
 
 interface ProfileScreenProps {
   onLogout?: () => void;
 }
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
-  const user = {
-    name: 'Juan Pérez',
-    email: 'juan.perez@empresa.com',
-    company: 'Mi Empresa S.A.',
-    phone: '+1 234 567 8900',
-    avatar: 'https://via.placeholder.com/100x100/6366F1/FFFFFF?text=JP',
-  };
-
   const handleMenuPress = (action: string) => {
     switch (action) {
       case 'editProfile':
@@ -68,22 +60,20 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
       <LinearGradient
         colors={[Colors.primary, Colors.primaryDark]}
         style={styles.header}
       >
         <View style={styles.profileInfo}>
-          <Image source={{ uri: user.avatar }} style={styles.avatar} />
+          <Image source={{ uri: userExample.avatar }} style={styles.avatar} />
           <View style={styles.userInfo}>
-            <Text style={styles.userName}>{user.name}</Text>
-            <Text style={styles.userEmail}>{user.email}</Text>
-            <Text style={styles.userCompany}>{user.company}</Text>
+            <Text style={styles.userName}>{userExample.name}</Text>
+            <Text style={styles.userEmail}>{userExample.email}</Text>
+            <Text style={styles.userCompany}>{userExample.company}</Text>
           </View>
         </View>
       </LinearGradient>
 
-      {/* Stats */}
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>24</Text>
@@ -101,7 +91,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
         </View>
       </View>
 
-      {/* Menu Items */}
       <View style={styles.menuContainer}>
         {menuItems.map(item => (
           <TouchableOpacity
@@ -113,7 +102,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
             onPress={() => handleMenuPress(item.action)}
           >
             <View style={styles.menuItemLeft}>
-              <Text style={styles.menuIcon}>{item.icon}</Text>
               <Text
                 style={[
                   styles.menuTitle,
@@ -128,7 +116,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
         ))}
       </View>
 
-      {/* App Info */}
       <View style={styles.appInfo}>
         <Text style={styles.appVersion}>Versión 1.0.0</Text>
         <Text style={styles.appCopyright}>© 2024 Mi Empresa</Text>
